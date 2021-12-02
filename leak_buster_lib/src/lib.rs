@@ -1,4 +1,5 @@
-mod db;
+pub mod db;
+pub mod usage_monitor;
 
 use crate::parse_tree::*;
 

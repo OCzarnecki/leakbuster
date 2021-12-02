@@ -1,5 +1,8 @@
-use leak_buster_lib;
+use leak_buster_lib::usage_monitor;
 
 fn main() {
-    println!("{:?}", leak_buster_lib::parse_condition("weekday or (not weekday)"));
+    usage_monitor::launch_with_monitoring(
+        "/usr/bin/sleep",
+        &vec!["3".to_string()]
+    );
 }
