@@ -95,7 +95,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "leak_buster_lib"
+name = "leakbuster"
 version = "0.1.0"
 dependencies = [
  "nom",

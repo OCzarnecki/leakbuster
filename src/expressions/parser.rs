@@ -1,9 +1,3 @@
-pub mod cmd;
-pub mod config;
-pub mod db;
-
-use crate::parse_tree::*;
-
 use nom::{
     IResult,
     branch::alt,
@@ -12,62 +6,59 @@ use nom::{
     sequence::{preceded, terminated, delimited, tuple},
 };
 
-mod parse_tree {
+#[derive(Debug, Eq, PartialEq)]
+pub enum Condition {
+    And(ConditionAnd),
+    Or(ConditionOr),
+    Not(ConditionNot),
+    Weekday,
+    InWindow(ConditionInWindow),
+    InCurrent(ConditionInCurrent)
+}
 
-    #[derive(Debug, Eq, PartialEq)]
-    pub enum Condition {
-        And(ConditionAnd),
-        Or(ConditionOr),
-        Not(ConditionNot),
-        Weekday,
-        InWindow(ConditionInWindow),
-        InCurrent(ConditionInCurrent)
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub struct ConditionAnd {
+    pub c1: Box<Condition>,
+    pub c2: Box<Condition>
+}
 
-    #[derive(Debug, Eq, PartialEq)]
-    pub struct ConditionAnd {
-        pub c1: Box<Condition>,
-        pub c2: Box<Condition>
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub struct ConditionOr {
+    pub c1: Box<Condition>,
+    pub c2: Box<Condition>
+}
 
-    #[derive(Debug, Eq, PartialEq)]
-    pub struct ConditionOr {
-        pub c1: Box<Condition>,
-        pub c2: Box<Condition>
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub struct ConditionNot {
+    pub c: Box<Condition>
+}
 
-    #[derive(Debug, Eq, PartialEq)]
-    pub struct ConditionNot {
-        pub c: Box<Condition>
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub struct ConditionInWindow {
+    pub limit: Duration,
+    pub window_size: Duration
+}
 
-    #[derive(Debug, Eq, PartialEq)]
-    pub struct ConditionInWindow {
-        pub limit: Duration,
-        pub window_size: Duration
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub struct ConditionInCurrent {
+    pub limit: Duration,
+    pub current: TimeUnit
+}
 
-    #[derive(Debug, Eq, PartialEq)]
-    pub struct ConditionInCurrent {
-        pub limit: Duration,
-        pub current: TimeUnit
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub struct Duration {
+    pub seconds: u64
+}
 
-    #[derive(Debug, Eq, PartialEq)]
-    pub struct Duration {
-        pub seconds: u64
-    }
-
-    #[derive(Debug, Eq, PartialEq)]
-    pub enum TimeUnit {
-        Second,
-        Minute,
-        Hour,
-        Day,
-        Week,
-        Month,
-        Year
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub enum TimeUnit {
+    Second,
+    Minute,
+    Hour,
+    Day,
+    Week,
+    Month,
+    Year
 }
 
 pub fn parse_condition(expr: &str) -> Option<Condition> {
@@ -143,8 +134,7 @@ fn condition_weekday(s: &str) -> IResult<&str, Condition> {
 }
 
 mod test {
-    use crate::parse_condition;
-    use crate::parse_tree::*;
+    use crate::expressions::parser::*;
 
     #[test]
     fn weekday() {

@@ -1,21 +1,29 @@
-use rusqlite::{params, Connection, OptionalExtension};
-use rusqlite::types::ValueRef;
+use rusqlite::{params, Connection};
 use std::convert::TryInto;
 use std::path::Path;
 use std::result;
 
-pub struct Db {
+pub trait Db {
+    fn record_usage(&self, app_key: &str, timestamp: u64, duration: u64)
+        -> Result<()>;
+
+    fn get_usage(&self, app_key: &str, from: u64, to: u64)
+        -> Result<u64>;
+
+}
+
+pub fn connect_sqlite<P: AsRef<Path>>(db_path: P) -> Result<SqliteDb> {
+    let connection = Connection::open(db_path)?;
+    let db = SqliteDb { connection };
+    db.init()?;
+    Ok(db)
+}
+
+pub struct SqliteDb {
     connection: Connection
 }
 
-impl Db {
-    pub fn connect<P: AsRef<Path>>(db_path: P) -> Result<Db> {
-        let connection = Connection::open(db_path)?;
-        let db = Db { connection };
-        db.init()?;
-        Ok(db)
-    }
-
+impl SqliteDb {
     fn init(&self) -> Result<()> {
         self.connection.execute(
             "CREATE TABLE IF NOT EXISTS usage (
@@ -25,8 +33,10 @@ impl Db {
             )", [])?;
         Ok(())
     }
+}
 
-    pub fn record_usage(&self, app_key: &str, timestamp: u64, duration: u64)
+impl Db for SqliteDb {
+    fn record_usage(&self, app_key: &str, timestamp: u64, duration: u64)
         -> Result<()> {
         self.connection.execute(
             "INSERT INTO usage
@@ -36,7 +46,7 @@ impl Db {
         Ok(())
     }
 
-    pub fn get_usage(&self, app_key: &str, from: u64, to: u64) -> Result<u64> {
+    fn get_usage(&self, app_key: &str, from: u64, to: u64) -> Result<u64> {
         let usage: i64 = self.connection.query_row(
             "SELECT SUM(duration) FROM USAGE
                 WHERE app_key = ?1
@@ -53,7 +63,6 @@ impl Db {
         });
         usage
     }
-
 }
 
 #[derive(Debug)]
@@ -79,6 +88,7 @@ impl From<rusqlite::types::FromSqlError> for Error {
 pub type Result<T, E = Error> = result::Result<T, E>;
 
 mod test {
+    use crate::db;
     use crate::db::Db;
 
     use tempfile::NamedTempFile;
@@ -86,20 +96,20 @@ mod test {
     #[test]
     fn can_connect_to_and_initialize_new_db() {
         let f = tmpf();
-        Db::connect(f.path()).expect("Could not create&init db");
+        db::connect_sqlite(f.path()).expect("Could not create&init db");
     }
 
     #[test]
     fn can_connect_to_existing_db() {
         let f = tmpf();
-        Db::connect(f.path()).unwrap();
-        Db::connect(f.path()).expect("Could not connect to existing db");
+        db::connect_sqlite(f.path()).unwrap();
+        db::connect_sqlite(f.path()).expect("Could not connect to existing db");
     }
 
     #[test]
     fn usage_is_zero_in_fresh_db() {
         let f = tmpf();
-        let db = Db::connect(f.path()).unwrap();
+        let db = db::connect_sqlite(f.path()).unwrap();
         let usage = db.get_usage("some-app", 0, 1000000000).unwrap();
         assert_eq!(0, usage, "If there are no entries, usage should be 0");
     }
@@ -107,14 +117,14 @@ mod test {
     #[test]
     fn can_record_usage() {
         let f = tmpf();
-        let db = Db::connect(f.path()).unwrap();
+        let db = db::connect_sqlite(f.path()).unwrap();
         db.record_usage("some-app", 1638437768, 60).unwrap();
     }
 
     #[test]
     fn usage_is_calculated_correctly() {
         let f = tmpf();
-        let db = Db::connect(f.path()).unwrap();
+        let db = db::connect_sqlite(f.path()).unwrap();
         let usages = vec![
             ("a1", 100, 60),
             ("a2", 150, 60),

@@ -3,13 +3,13 @@ use std::time::SystemTime;
 use std::{thread, time};
 
 use crate::config::{App, Config, StartupHook, TimeHook};
-use crate::db::Db;
+use crate::db;
 
 use std::path::Path;
 
 pub fn run<P: AsRef<Path>>(config_path: P, db_path: P, app_id: &str) {
     let config = Config::load(config_path).expect("Couldn't load config");
-    let db = Db::connect(db_path).expect("Couldn't connect to db");
+    let db = db::connect_sqlite(db_path).expect("Couldn't connect to db");
     let app = &config.get_app(app_id)
         .expect(&format!("Unknown app: {:}", app_id));
     check_startup_hooks(&app).expect("Startup hook prevented run");
@@ -29,7 +29,7 @@ fn check_startup_hooks<'a>(app: &'a App) -> Result<(), &'a StartupHook> {
     Ok(())
 }
 
-fn run_app(app: &App, db: &Db) {
+fn run_app(app: &App, db: &db::Db) {
     let mut command = Command::new(&app.cmd)
         .args(&app.args)
         .spawn()

@@ -1,9 +1,13 @@
 [package]
-name = "leak_buster_check_condition"
+name = "leakbuster"
 version = "0.1.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-leak_buster_lib = { path = "../leak_buster_lib/" }
+nom = "5.0.0"
+tempfile = "3.2.0"
+rusqlite = "0.26.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8"
