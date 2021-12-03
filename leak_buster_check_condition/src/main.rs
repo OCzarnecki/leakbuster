@@ -1,8 +1,5 @@
-use leak_buster_lib::usage_monitor;
+use leak_buster_lib::cmd::run;
 
 fn main() {
-    usage_monitor::launch_with_monitoring(
-        "/usr/bin/sleep",
-        &vec!["3".to_string()]
-    );
+    run::run("../test-config.yaml", "../usage.sqlite", "testapp");
 }

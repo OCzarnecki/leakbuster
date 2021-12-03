@@ -14,6 +14,10 @@ impl Config {
         let config = serde_yaml::from_str(&config_str)?;
         Ok(config)
     }
+
+    pub fn get_app<'a>(&'a self, app_id: &str) -> Option<&'a App> {
+        self.apps.iter().find(|app| app.id == app_id)
+    }
 }
 
 #[derive(Deserialize, PartialEq, Debug)]
@@ -114,6 +118,25 @@ apps:
             ]
         };
         assert_eq!(expected, cfg);
+    }
+
+    #[test]
+    fn get_existent_app() {
+        let cfg = config_from("
+apps:
+  - id: app_id
+    cmd: some_cmd
+    args: []
+    startup_hooks: []
+    time_hooks: []")
+            .expect("Could not load config");
+        cfg.get_app("app_id").expect("could not find app by id");
+    }
+
+    #[test]
+    fn get_nonexistent_app() {
+        let cfg = config_from("apps: []").expect("Could not load config");
+        assert!(cfg.get_app("app_id").is_none());
     }
 
     fn config_from(config_str: &str) -> Result<Config> {

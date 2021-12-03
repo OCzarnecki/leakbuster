@@ -4,7 +4,7 @@ use std::convert::TryInto;
 use std::path::Path;
 use std::result;
 
-struct Db {
+pub struct Db {
     connection: Connection
 }
 
@@ -26,7 +26,7 @@ impl Db {
         Ok(())
     }
 
-    fn record_usage(&self, app_key: &str, timestamp: u64, duration: u32)
+    pub fn record_usage(&self, app_key: &str, timestamp: u64, duration: u64)
         -> Result<()> {
         self.connection.execute(
             "INSERT INTO usage
@@ -36,7 +36,7 @@ impl Db {
         Ok(())
     }
 
-    fn get_usage(&self, app_key: &str, from: u64, to: u64) -> Result<u64> {
+    pub fn get_usage(&self, app_key: &str, from: u64, to: u64) -> Result<u64> {
         let usage: i64 = self.connection.query_row(
             "SELECT SUM(duration) FROM USAGE
                 WHERE app_key = ?1

@@ -1,6 +1,6 @@
+pub mod cmd;
 pub mod config;
 pub mod db;
-pub mod usage_monitor;
 
 use crate::parse_tree::*;
 

@@ -1,0 +1,12 @@
+apps:
+  - id: testapp
+    cmd: date
+    args: []
+    startup_hooks:
+      - cmd: touch
+        args: ["../startup_marker"]
+    time_hooks:
+      - cmd: sh
+        args: ["-c", "date +%s >> ../time_hook_marker"]
+        condition_cmd: sh
+        condition_args: ["-c", "exit 1"]
