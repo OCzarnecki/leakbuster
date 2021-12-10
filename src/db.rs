@@ -19,6 +19,13 @@ pub fn connect_sqlite<P: AsRef<Path>>(db_path: P) -> Result<SqliteDb> {
     Ok(db)
 }
 
+pub fn open_in_memory() -> Result<SqliteDb> {
+    let connection = Connection::open_in_memory()?;
+    let db = SqliteDb { connection };
+    db.init()?;
+    Ok(db)
+}
+
 pub struct SqliteDb {
     connection: Connection
 }
@@ -104,6 +111,22 @@ mod test {
         let f = tmpf();
         db::connect_sqlite(f.path()).unwrap();
         db::connect_sqlite(f.path()).expect("Could not connect to existing db");
+    }
+
+    #[test]
+    fn can_open_db_in_memory() {
+        db::open_in_memory().unwrap();
+    }
+
+    #[test]
+    fn can_run_queries_against_in_memory_db() {
+        let db = db::open_in_memory().unwrap();
+        let ts = 1638622611;
+        db.record_usage("some-app", ts, 1).unwrap();
+        assert_eq!(
+            1,
+            db.get_usage("some-app", ts - 10, ts + 10).unwrap()
+        );
     }
 
     #[test]
