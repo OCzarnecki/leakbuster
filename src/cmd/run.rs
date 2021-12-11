@@ -7,7 +7,10 @@ use crate::db;
 
 use std::path::Path;
 
-pub fn run<P: AsRef<Path>>(config_path: P, db_path: P, app_id: &str) {
+pub fn run<P, Q>(config_path: P, db_path: Q, app_id: &str)
+where P: AsRef<Path>,
+      Q: AsRef<Path>
+{
     let config = Config::load(config_path).expect("Couldn't load config");
     let db = db::connect_sqlite(db_path).expect("Couldn't connect to db");
     let app = &config.get_app(app_id)
