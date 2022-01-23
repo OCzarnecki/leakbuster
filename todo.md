@@ -1,6 +1,6 @@
 # Conditional startup prevention
 It should be possible to start an application only if it's been used for less than 15 minutes on that day. Otherwise, a notification is displayed.
-- [ ] adapt query language
+- [x] adapt query language
 - [x] implement startup hooks
 - [x] implement conditional startup hooks (done atm by chaining hook with
       `leakbuster eval` command)
@@ -16,3 +16,5 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 # Refactorings
 - [ ] Db should be a struct
 - [ ] Parse conditions once, when loading config
+- [ ] Test expression parsing
+- [ ] Test expression evaluation

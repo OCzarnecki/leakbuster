@@ -12,10 +12,10 @@ Top level expression that can be evauated by the leak-buster tooling.
 ```
 {Condition} → ( {Condition} )
             | between {Time} and {Time}
-            | max {Duration} in current {TimeUnit}
-            | max {Duration} in window {Duration}
+            | atmost {Duration} in this {TimeUnit}
+            | atmost {Duration} in sliding {Duration}
             | not {Condition}
-            | Weekday
+            | Mon | Tue | Wed | Thu | Fri | Sat | Sun
             | {Condition} and {Condition}
             | {Condition} or {Condition}
 ```

@@ -16,9 +16,9 @@ pub enum Condition {
     And(ConditionAnd),
     Or(ConditionOr),
     Not(ConditionNot),
-    Weekday,
-    InWindow(ConditionInWindow),
-    InCurrent(ConditionInCurrent)
+    Weekday(ConditionWeekday),
+    AtMostInSliding(ConditionAtMostInSliding),
+    AtMostInThis(ConditionAtMostInThis)
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -39,13 +39,24 @@ pub struct ConditionNot {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct ConditionInWindow {
+pub enum ConditionWeekday {
+    Mon,
+    Tue,
+    Wed,
+    Thu,
+    Fri,
+    Sat,
+    Sun
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct ConditionAtMostInSliding {
     pub limit: Duration,
     pub window_size: Duration
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct ConditionInCurrent {
+pub struct ConditionAtMostInThis {
     pub limit: Duration,
     pub time_unit: TimeUnit
 }
@@ -105,8 +116,8 @@ fn condition_term<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>>
                 preceded(multispace0, char(')'))
             ),
             condition_weekday,
-            condition_in_current,
-            condition_in_window
+            condition_at_most_in_this,
+            condition_at_most_in_sliding
     )))(s)
 }
 
@@ -158,47 +169,67 @@ fn condition_not<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> 
 }
 
 fn condition_weekday<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
-    let (input, _) = tag("weekday")(s)?;
-    Ok((input, Condition::Weekday))
+    let (input, weekday_str) = context(
+        "condition_weekday",
+        alt((
+            tag("Mon"),
+            tag("Tue"),
+            tag("Wed"),
+            tag("Thu"),
+            tag("Fri"),
+            tag("Sat"),
+            tag("Sun"),
+        )))(s)?;
+    let wd = match weekday_str {
+        "Mon" => ConditionWeekday::Mon,
+        "Tue" => ConditionWeekday::Tue,
+        "Wed" => ConditionWeekday::Wed,
+        "Thu" => ConditionWeekday::Thu,
+        "Fri" => ConditionWeekday::Fri,
+        "Sat" => ConditionWeekday::Sat,
+        "Sun" => ConditionWeekday::Sun,
+        _ => panic!("Reached unreachable code. Draw your own conclusions...")
+    };
+    Ok((input, Condition::Weekday(wd)))
 }
 
-fn condition_in_current<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_at_most_in_this<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
     let (input, (_, _, limit, _, _, _, _, _, time_unit)) = context(
-        "condition_in_current",
+        "condition_at_most_in_this",
         tuple((
-            tag("max"),
+            tag("atmost"),
             multispace1,
             duration,
             multispace1,
             tag("in"),
             multispace1,
-            tag("current"),
+            tag("this"),
             multispace1,
             time_unit
         ))
     )(s)?;
-    Ok((input, Condition::InCurrent(
-                ConditionInCurrent { limit, time_unit }
+    Ok((input, Condition::AtMostInThis(
+                ConditionAtMostInThis { limit, time_unit }
     )))
 }
 
-fn condition_in_window<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_at_most_in_sliding<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
     let (input, (_, _, limit, _, _, _, _, _, window_size)) = context(
-        "condition_in_window",
+        "condition_at_most_in_sliding",
         tuple((
-            tag("max"),
+            tag("atmost"),
             multispace1,
             duration,
             multispace1,
             tag("in"),
             multispace1,
-            tag("window"),
+            tag("sliding"),
             multispace1,
             duration
         ))
     )(s)?;
-    Ok((input, Condition::InWindow(
-                ConditionInWindow { limit, window_size }
+    Ok((input, Condition::AtMostInSliding(
+                ConditionAtMostInSliding { limit, window_size }
     )))
 }
 
@@ -267,20 +298,31 @@ mod test {
 
     #[test]
     fn weekday() {
-        assert_eq!(Ok(Condition::Weekday), parse_condition("weekday"));
+        let test_cases = vec![
+            ("Mon", ConditionWeekday::Mon),
+            ("Tue", ConditionWeekday::Tue),
+            ("Wed", ConditionWeekday::Wed),
+            ("Thu", ConditionWeekday::Thu),
+            ("Fri", ConditionWeekday::Fri),
+            ("Sat", ConditionWeekday::Sat),
+            ("Sun", ConditionWeekday::Sun),
+        ];
+        for (expr, cnd) in test_cases {
+            assert_eq!(Ok(Condition::Weekday(cnd)), parse_condition(expr));
+        };
     }
 
     #[test]
     fn whitespace_around_expression_doesnt_matter() {
         let examples = vec![
-            " weekday",
-            "weekday ",
-            " weekday ",
-            "\n\nweekday",
-            "\tweekday\n\n"
+            " Mon",
+            "Mon ",
+            " Mon ",
+            "\n\nMon",
+            "\tMon\n\n"
         ];
         for e in examples {
-            assert_eq!(Ok(Condition::Weekday), parse_condition(e));
+            assert_eq!(Ok(Condition::Weekday(ConditionWeekday::Mon)), parse_condition(e));
         }
     }
 
@@ -289,33 +331,33 @@ mod test {
         assert_eq!(
             Ok(
                 Condition::Not(ConditionNot { 
-                    c: Box::new(Condition:: Weekday) 
+                    c: Box::new(Condition::Weekday(ConditionWeekday::Mon)),
                 })
             ),
-            parse_condition("not weekday")
+            parse_condition("not Mon")
         );
     }
 
     #[test]
-    fn brackets_dont_matter() {
+    fn superfluous_brackets_dont_matter() {
         let examples = vec![
-            "weekday and weekday",
-            "(weekday and weekday)",
-            "( weekday and weekday )",
-            "(weekday) and weekday",
-            "weekday and (weekday)",
-            "(weekday) and (weekday)",
-            "( (weekday) and (weekday) )",
-            "( weekday
+            "Mon and Mon",
+            "(Mon and Mon)",
+            "( Mon and Mon )",
+            "(Mon) and Mon",
+            "Mon and (Mon)",
+            "(Mon) and (Mon)",
+            "( (Mon) and (Mon) )",
+            "( Mon
                 and
-                        weekday  \t\t)"
+                        Mon  \t\t)"
         ];
         for e in examples {
             assert_eq!(
                 Ok(
                     Condition::And(ConditionAnd {
-                        c1: Box::new(Condition::Weekday),
-                        c2: Box::new(Condition::Weekday)
+                        c1: Box::new(Condition::Weekday(ConditionWeekday::Mon)),
+                        c2: Box::new(Condition::Weekday(ConditionWeekday::Mon)),
                     })
                 ),
                 parse_condition(e),
@@ -331,14 +373,67 @@ mod test {
                 Condition::And(ConditionAnd {
                     c1: Box::new(
                             Condition::Or(ConditionOr {
-                                c1: Box::new(Condition::Weekday),
-                                c2: Box::new(Condition::Weekday),
+                                c1: Box::new(Condition::Weekday(ConditionWeekday::Mon)),
+                                c2: Box::new(Condition::Weekday(ConditionWeekday::Mon)),
                             })
                         ),
-                    c2: Box::new(Condition::Weekday)
+                    c2: Box::new(Condition::Weekday(ConditionWeekday::Mon)),
                 })
             ),
-            parse_condition("(weekday or weekday) and weekday)")
+            parse_condition("(Mon or Mon) and Mon)")
         );
+    }
+
+    #[test]
+    fn at_most_in_sliding() {
+        let exprs = vec![
+            "atmost 15 s in sliding 10 m",
+            " atmost    15  s     in  sliding     10  m ",
+            "atmost\n\n15\ns\nin\nsliding\n10\nm",
+            "\tatmost\t15\ts\tin\tsliding\t10\tm\t"
+        ];
+        for e in exprs {
+            assert_eq!(
+                Ok(
+                    Condition::AtMostInSliding(ConditionAtMostInSliding {
+                        limit: Duration { seconds: 15 },
+                        window_size: Duration {seconds: 600 }
+                    })
+                ),
+                parse_condition(e)
+            );
+        }
+    }
+
+    #[test]
+    fn at_most_in_this() {
+        let exprs = vec![
+            "atmost 15 s in this week",
+            " atmost    15  s     in  this     week",
+            "atmost\n\n15\ns\nin\nthis\nweek\n",
+            "\tatmost\t15\ts\tin\tthis\tweek\t"
+        ];
+        for e in exprs {
+            assert_eq!(
+                Ok(
+                    Condition::AtMostInThis(ConditionAtMostInThis {
+                        limit: Duration { seconds: 15 },
+                        time_unit: TimeUnit::Week
+                    })
+                ),
+                parse_condition(e)
+            );
+        }
+    }
+
+    #[test]
+    fn integers() {
+        let test_cases = vec![0, 1, 10, 12343, 0007, 18446744073709551615u64];
+        for t in test_cases {
+            match integer(&u64::to_string(&t)) {
+                Ok((_, x)) => assert_eq!(t, x),
+                _ => panic!("Parsing int resulted in error")
+            }
+        }
     }
 }

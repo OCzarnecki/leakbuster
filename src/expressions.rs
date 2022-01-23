@@ -2,7 +2,7 @@ pub mod parser;
 pub use crate::expressions::parser::parse_condition;
 
 use crate::db;
-use crate::expressions::parser::{Condition, TimeUnit};
+use crate::expressions::parser::{Condition, ConditionWeekday, TimeUnit};
 
 use chrono::prelude::*;
 use std::convert::TryInto;
@@ -35,11 +35,16 @@ fn eval<DB: db::Db, Z: TimeZone>(
         Condition::And(c_and) => Ok(eval(ctx, &c_and.c1)? && eval(ctx, &c_and.c2)?),
         Condition::Or(c_or) => Ok(eval(ctx, &c_or.c1)? || eval(ctx, &c_or.c2)?),
         Condition::Not(c_not) => Ok(!eval(ctx, &c_not.c)?),
-        Condition::Weekday => match ctx.time.weekday() {
-            Weekday::Sat | Weekday::Sun => Ok(false),
-            _ => Ok(true),
+        Condition::Weekday(cwd) => match ctx.time.weekday() {
+            Weekday::Mon => Ok(*cwd == ConditionWeekday::Mon),
+            Weekday::Tue => Ok(*cwd == ConditionWeekday::Tue),
+            Weekday::Wed => Ok(*cwd == ConditionWeekday::Wed),
+            Weekday::Thu => Ok(*cwd == ConditionWeekday::Thu),
+            Weekday::Fri => Ok(*cwd == ConditionWeekday::Fri),
+            Weekday::Sat => Ok(*cwd == ConditionWeekday::Sat),
+            Weekday::Sun => Ok(*cwd == ConditionWeekday::Sun) 
         },
-        Condition::InWindow(c_in_window) => {
+        Condition::AtMostInSliding(c_in_window) => {
             // We'll never have negative time stamps in a real use case
             let ts: u64 = ctx.time.timestamp().try_into().unwrap();
             let usage = ctx
@@ -47,7 +52,7 @@ fn eval<DB: db::Db, Z: TimeZone>(
                 .get_usage(ctx.app_id, ts - c_in_window.window_size.seconds, ts)?;
             Ok(usage < c_in_window.limit.seconds)
         }
-        Condition::InCurrent(c_in_current) => {
+        Condition::AtMostInThis(c_in_current) => {
             let start_of_window = match c_in_current.time_unit {
                 TimeUnit::Second => ctx.time.clone(),
                 TimeUnit::Minute => ctx
@@ -108,10 +113,26 @@ mod test {
     use crate::expressions;
 
     #[test]
-    fn in_window() {
+    fn no_expression_panics_on_empty_db() {
         let db = db::open_in_memory().unwrap();
-        let time = Local::now();
-        check_str_condition(&db, &time, "app", "max 1 m in window 1 h").unwrap();
+        let time = Utc.ymd(2000, 3, 20).and_hms(12, 0, 0);
+        let exprs = vec![
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun",
+            "Mon and Tue",
+            "Wed or Thu",
+            "not Fri",
+            "atmost 5 m in sliding 1 h",
+            "atmost 1 h in this week"
+        ];
+        for e in exprs {
+            check_str_condition(&db, &time, "app", e).unwrap();
+        }
     }
 
     fn check_str_condition<Z: TimeZone, DB: db::Db>(
