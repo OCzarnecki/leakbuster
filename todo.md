@@ -13,6 +13,13 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 - [ ] figure out how to deploy that package to AUR
 - [ ] have default locations for db and config, overwritable for dev
 
+# Delay startup
+- [x] make delayed startup command
+- [ ] implement arg parsing
+- [ ] refactor to use controller, instead of custom widget
+- [ ] align text to center
+- [ ] watch for screen activity
+
 # Refactorings
 - [ ] Db should be a struct
 - [ ] Parse conditions once, when loading config

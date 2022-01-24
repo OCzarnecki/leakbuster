@@ -1,4 +1,4 @@
-use leakbuster::cmd::{eval, run};
+use leakbuster::cmd::{delay, eval, run};
 use structopt::StructOpt;
 use std::path::PathBuf;
 
@@ -34,7 +34,8 @@ enum Leakbuster {
 
         /// Condition to be evaluated.
         condition: String
-    }
+    },
+    Delay
 }
 
 fn main() {
@@ -43,6 +44,8 @@ fn main() {
         Leakbuster::Run{ config, db, app_id } =>
             run::run(&config, &db, &app_id),
         Leakbuster::Eval{ db, app_id, condition } =>
-            eval::eval(&db, &app_id, &condition)
+            eval::eval(&db, &app_id, &condition),
+        Leakbuster::Delay =>
+            delay::delay(30, None, "", &vec![])
     }
 }
