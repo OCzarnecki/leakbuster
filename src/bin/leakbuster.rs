@@ -35,7 +35,10 @@ enum Leakbuster {
         /// Condition to be evaluated.
         condition: String
     },
-    Delay
+    Delay {
+        duration: u64,
+        message: Option<String>
+    }
 }
 
 fn main() {
@@ -45,7 +48,7 @@ fn main() {
             run::run(&config, &db, &app_id),
         Leakbuster::Eval{ db, app_id, condition } =>
             eval::eval(&db, &app_id, &condition),
-        Leakbuster::Delay =>
-            delay::delay(30, None, "", &vec![])
+        Leakbuster::Delay{ duration, message } =>
+            delay::delay(duration, message)
     }
 }
