@@ -1,10 +1,13 @@
-use std::path::Path;
+use std::path::PathBuf;
+use crate::cmd;
 use crate::db;
 use crate::expressions;
 use crate::expressions::{parse_condition, parser::Condition};
 
-pub fn eval<P: AsRef<Path>>(db_path: P, app_id: &str, condition_str: &str) {
-    let db = db::connect_sqlite(db_path).unwrap();
+pub fn eval(db_path: Option<PathBuf>, app_id: &str, condition_str: &str) {
+    let db = db::connect_sqlite(
+        db_path.unwrap_or_else(cmd::default_db_path)
+    ).unwrap();
     let condition: Condition = parse_condition(condition_str).unwrap();
     match expressions::check_condition(&condition, &db, app_id) {
         Ok(b) => if b {

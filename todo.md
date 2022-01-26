@@ -11,7 +11,7 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 - [ ] document configuration file
 - [ ] package it so I can install it locally
 - [ ] figure out how to deploy that package to AUR
-- [ ] have default locations for db and config, overwritable for dev
+- [x] have default locations for db and config, overwritable for dev
 
 # Delay startup
 - [x] make delayed startup command
@@ -25,3 +25,4 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 - [ ] Parse conditions once, when loading config
 - [ ] Test expression parsing
 - [ ] Test expression evaluation
+- [ ] Replace PathBufs with Paths in Config, Db, bin/, delay, and run

@@ -2,17 +2,19 @@ use std::process::Command;
 use std::time::SystemTime;
 use std::{thread, time};
 
-use crate::config::{App, Config, StartupHook, TimeHook};
+use crate::config::{App, StartupHook};
+use crate::cmd;
 use crate::db;
 
-use std::path::Path;
+use std::path::PathBuf;
 
-pub fn run<P, Q>(config_path: P, db_path: Q, app_id: &str)
-where P: AsRef<Path>,
-      Q: AsRef<Path>
-{
-    let config = Config::load(config_path).expect("Couldn't load config");
-    let db = db::connect_sqlite(db_path).expect("Couldn't connect to db");
+pub fn run(
+    config_path: Option<PathBuf>,
+    db_path: Option<PathBuf>,
+    app_id: &str
+) {
+    let config = cmd::get_config(config_path);
+    let db = cmd::get_db(db_path);
     let app = &config.get_app(app_id)
         .expect(&format!("Unknown app: {:}", app_id));
     check_startup_hooks(&app).expect("Startup hook prevented run");
@@ -32,7 +34,7 @@ fn check_startup_hooks<'a>(app: &'a App) -> Result<(), &'a StartupHook> {
     Ok(())
 }
 
-fn run_app(app: &App, db: &db::Db) {
+fn run_app(app: &App, db: &dyn db::Db) {
     let mut command = Command::new(&app.cmd)
         .args(&app.args)
         .spawn()
