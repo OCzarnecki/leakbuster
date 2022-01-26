@@ -17,7 +17,7 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 - [x] make delayed startup command
 - [x] implement arg parsing
 - [x] refactor to use controller, instead of custom widget
-- [ ] align text to center
+- [x] align text to center
 - [ ] watch for screen activity
 
 # Refactorings

@@ -82,13 +82,19 @@ pub fn delay(delay_in_s: u64, message: Option<String>) {
 }
 
 fn build_root_widget() -> impl Widget<AppData> {
-    let label = Label::new(|data: &AppData, _: &Env| {
-        format!("{}\n{}\n(Press ESC to abort)", data.message, data.countdown)
-    })
-    .with_text_size(32.0);
+    let label_message = Label::new(|data: &AppData, _: &Env| {
+        data.message.clone()
+    }).with_text_size(32.0);
+    let label_countdown = Label::new(|data: &AppData, _: &Env| {
+        format!("{}", data.countdown)
+    }).with_text_size(50.0);
+    let label_hint = Label::new("(Press ESC to abort)")
+        .with_text_size(20.0);
 
     Flex::column()
-        .with_child(label)
+        .with_child(label_message)
+        .with_child(label_countdown)
+        .with_child(label_hint)
         .align_vertical(UnitPoint::CENTER)
         .controller(DelayController::new())
 }
