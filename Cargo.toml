@@ -1,5 +1,10 @@
 [package]
 name = "leakbuster"
+authors = ["OCzarnecki"]
+description = "Leakbuster is a tool for monitoring the time for which applications are running, and for triggering configurable events once the usage time meets some condition."
+homepage = "https://github.com/OCzarnecki/leakbuster"
+repository = "https://github.com/OCzarnecki/leakbuster"
+license = "MIT"
 version = "0.1.0"
 edition = "2018"
 

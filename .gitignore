@@ -3,3 +3,5 @@ startup_marker
 target/
 progress.log
 test-config.yaml
+PKGBUILD
+*.tar.gz
