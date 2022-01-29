@@ -2,20 +2,21 @@ pub mod parser;
 pub use crate::expressions::parser::parse_condition;
 
 use crate::db;
+use crate::db::Db;
 use crate::expressions::parser::{Condition, ConditionWeekday, TimeUnit};
 
 use chrono::prelude::*;
 use std::convert::TryInto;
 
-struct EvalContext<'a, DB: db::Db, Z: TimeZone> {
-    pub db: &'a DB,
+struct EvalContext<'a, Z: TimeZone> {
+    pub db: &'a Db,
     pub time: &'a DateTime<Z>,
     pub app_id: &'a str,
 }
 
-pub fn check_condition<T: db::Db>(
+pub fn check_condition(
     condition: &Condition,
-    db: &T,
+    db: &Db,
     app_id: &str,
 ) -> Result<bool, db::Error> {
     let time = Local::now();
@@ -27,8 +28,8 @@ pub fn check_condition<T: db::Db>(
     eval(&ctx, condition)
 }
 
-fn eval<DB: db::Db, Z: TimeZone>(
-    ctx: &EvalContext<DB, Z>,
+fn eval<Z: TimeZone>(
+    ctx: &EvalContext<Z>,
     c: &Condition,
 ) -> Result<bool, db::Error> {
     match c {
@@ -106,10 +107,12 @@ fn eval<DB: db::Db, Z: TimeZone>(
     }
 }
 
+#[allow(dead_code)]
 mod test {
     use chrono::prelude::*;
 
     use crate::db;
+    use crate::db::Db;
     use crate::expressions;
 
     #[test]
@@ -135,8 +138,8 @@ mod test {
         }
     }
 
-    fn check_str_condition<Z: TimeZone, DB: db::Db>(
-        db: &DB,
+    fn check_str_condition<Z: TimeZone>(
+        db: &Db,
         time: &DateTime<Z>,
         app_id: &str,
         condition_str: &str,

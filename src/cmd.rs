@@ -5,7 +5,7 @@ pub mod run;
 use crate::config;
 use crate::config::Config;
 use crate::db;
-use crate::db::SqliteDb;
+use crate::db::Db;
 
 use home;
 use std::io::ErrorKind;
@@ -42,7 +42,7 @@ fn get_config(manual: Option<PathBuf>) -> Config {
     }
 }
 
-fn get_db(manual: Option<PathBuf>) -> SqliteDb {
+fn get_db(manual: Option<PathBuf>) -> Db {
     let path = manual.unwrap_or_else(default_db_path);
     db::connect_sqlite(path).expect("Could not load db!")
 }

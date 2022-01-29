@@ -13,7 +13,7 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 - [ ] watch for screen activity
 
 # Refactorings
-- [ ] Db should be a struct
+- [x] Db should be a struct
 - [ ] Parse conditions once, when loading config
 - [ ] Test expression parsing
 - [ ] Test expression evaluation

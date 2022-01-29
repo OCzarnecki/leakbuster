@@ -5,7 +5,7 @@ use nom::{
     bytes::complete::tag,
     character::complete::{char, multispace0, multispace1, one_of},
     combinator::{map_res, recognize},
-    error::{context, convert_error, ParseError, VerboseError},
+    error::{context, convert_error, VerboseError},
     multi::many1,
     sequence::{preceded, terminated, delimited, tuple},
 };
@@ -293,6 +293,7 @@ fn integer<'a>(s: &'a str) -> IResult<&'a str, u64, Error<&'a str>> {
     )(s)
 }
 
+#[allow(dead_code, unused_imports)]
 mod test {
     use crate::expressions::parser::*;
 

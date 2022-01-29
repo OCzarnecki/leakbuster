@@ -3,34 +3,25 @@ use std::convert::TryInto;
 use std::path::Path;
 use std::result;
 
-pub trait Db {
-    fn record_usage(&self, app_key: &str, timestamp: u64, duration: u64)
-        -> Result<()>;
-
-    fn get_usage(&self, app_key: &str, from: u64, to: u64)
-        -> Result<u64>;
-
-}
-
-pub fn connect_sqlite<P: AsRef<Path>>(db_path: P) -> Result<SqliteDb> {
+pub fn connect_sqlite<P: AsRef<Path>>(db_path: P) -> Result<Db> {
     let connection = Connection::open(db_path)?;
-    let db = SqliteDb { connection };
+    let db = Db { connection };
     db.init()?;
     Ok(db)
 }
 
-pub fn open_in_memory() -> Result<SqliteDb> {
+pub fn open_in_memory() -> Result<Db> {
     let connection = Connection::open_in_memory()?;
-    let db = SqliteDb { connection };
+    let db = Db { connection };
     db.init()?;
     Ok(db)
 }
 
-pub struct SqliteDb {
+pub struct Db {
     connection: Connection
 }
 
-impl SqliteDb {
+impl Db {
     fn init(&self) -> Result<()> {
         self.connection.execute(
             "CREATE TABLE IF NOT EXISTS usage (
@@ -40,10 +31,8 @@ impl SqliteDb {
             )", [])?;
         Ok(())
     }
-}
 
-impl Db for SqliteDb {
-    fn record_usage(&self, app_key: &str, timestamp: u64, duration: u64)
+    pub fn record_usage(&self, app_key: &str, timestamp: u64, duration: u64)
         -> Result<()> {
         self.connection.execute(
             "INSERT INTO usage
@@ -53,7 +42,7 @@ impl Db for SqliteDb {
         Ok(())
     }
 
-    fn get_usage(&self, app_key: &str, from: u64, to: u64) -> Result<u64> {
+    pub fn get_usage(&self, app_key: &str, from: u64, to: u64) -> Result<u64> {
         let usage: i64 = self.connection.query_row(
             "SELECT SUM(duration) FROM USAGE
                 WHERE app_key = ?1
@@ -94,6 +83,7 @@ impl From<rusqlite::types::FromSqlError> for Error {
 
 pub type Result<T, E = Error> = result::Result<T, E>;
 
+#[allow(unused_imports, dead_code)]
 mod test {
     use crate::db;
     use crate::db::Db;

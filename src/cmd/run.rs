@@ -4,7 +4,7 @@ use std::{thread, time};
 
 use crate::config::{App, StartupHook};
 use crate::cmd;
-use crate::db;
+use crate::db::Db;
 
 use std::path::PathBuf;
 
@@ -34,7 +34,7 @@ fn check_startup_hooks<'a>(app: &'a App) -> Result<(), &'a StartupHook> {
     Ok(())
 }
 
-fn run_app(app: &App, db: &dyn db::Db) {
+fn run_app(app: &App, db: &Db) {
     let mut command = Command::new(&app.cmd)
         .args(&app.args)
         .spawn()

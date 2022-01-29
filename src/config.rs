@@ -63,6 +63,7 @@ impl From<serde_yaml::Error> for Error {
 
 pub type Result<T, E = Error> = result::Result<T, E>;
 
+#[allow(unused_imports, dead_code)]
 mod test {
     use tempfile::NamedTempFile;
     use std::fs;
