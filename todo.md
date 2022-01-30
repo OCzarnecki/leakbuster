@@ -15,6 +15,6 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 # Refactorings
 - [x] Db should be a struct
 - [ ] Parse conditions once, when loading config
-- [ ] Test expression parsing
-- [ ] Test expression evaluation
-- [ ] Replace PathBufs with Paths in Config, Db, bin/, delay, and run
+- [ ] After condition language stabilized a bit
+  - [ ] Test expression parsing
+  - [ ] Test expression evaluation

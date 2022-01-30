@@ -1,0 +1,37 @@
+# Configuration file specification
+
+The entire behaviour of leakbuster (which programs can be run, the associated time and startup hooks etc.) is controlled with a configuration file. By default, leakbuster will try to load configuration from ~/.config/leakbuster.config, but an alternative file can be supplied via command line argument.
+
+The configuration file is in YAML, and expects a root object at the top.
+
+# Root
+
+Field name | Type    | Optional | Description
+-----------+---------+----------+------------
+apps       | \[App\] | no       | List of apps that leakbuster can start.
+
+# App
+
+Field name    | Type            | Optional | Description
+--------------+-----------------+----------+------------
+id            | text            | no       | Id by which the app is known to leakbuster. Alphanumerical IDs without spaces are recommended.
+cmd           | text            | no       | Command that leakbuster will run to start the app.
+args          | \[text\]        | no       | Arguments to pass when starting the app.
+startup_hooks | \[StartupHook\] | no       | List of StartupHook, to be run before the app. The StartupHooks are run in order. If one of them returns a non-zero exit code, leakbuster will terminate instead of running the next one or the app.
+time_hooks    | \[TimeHook\]    | no       | List of TimeHooks, to be run after the app is started. See TimeHook configuration for details.
+
+# StartupHook
+
+Field name    | Type            | Optional | Description
+--------------+-----------------+----------+------------
+cmd           | text            | no       | Command to execute in order to run this StartupHook.
+args          | \[text\]        | no       | Command line arguments.
+
+# TimeHook
+
+Field name    | Type            | Optional | Description
+--------------+-----------------+----------+------------
+cmd           | text            | no       | Command to execute in order to run this TimeHook.
+args          | \[text\]        | no       | Command line arguments to TimeHook command.
+condition_cmd | text            | no       | Command to execute to check whether this TimeHook should be run. The TimeHook will be run only if this returns with exit code 0.
+comdition_args | args           | no       | Command line arguments to condition command.
