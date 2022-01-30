@@ -1,3 +1,5 @@
+use crate::expressions::parser::{Condition, Duration};
+
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;
@@ -24,23 +26,46 @@ impl Config {
 pub struct App {
     pub id: String,
     pub cmd: String,
+    #[serde(default)]
     pub args: Vec<String>,
+    #[serde(default)]
     pub startup_hooks: Vec<StartupHook>,
+    #[serde(default)]
     pub time_hooks: Vec<TimeHook>,
 }
 
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct StartupHook {
     pub cmd: String,
-    pub args: Vec<String>
+    #[serde(default)]
+    pub args: Vec<String>,
+    pub condition: Option<Condition>
 }
 
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct TimeHook {
     pub cmd: String,
+    #[serde(default)]
     pub args: Vec<String>,
-    pub condition_cmd: String,
-    pub condition_args: Vec<String>
+    #[serde(default)]
+    pub condition_cmd: Option<String>,
+    #[serde(default)]
+    pub condition_args: Vec<String>,
+    pub condition: Condition,
+    #[serde(default="TimeHook::default_interval")]
+    pub interval: Duration,
+    #[serde(default="TimeHook::default_initial_delay")]
+    pub initial_delay: Duration
+}
+
+impl TimeHook {
+    fn default_interval() -> Duration {
+        Duration { seconds: 10 }
+    }
+
+    fn default_initial_delay() -> Duration {
+        Duration { seconds: 0 }
+    }
 }
 
 #[derive(Debug)]

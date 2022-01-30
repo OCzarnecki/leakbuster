@@ -22,6 +22,7 @@ pub fn run(
 }
 
 fn check_startup_hooks<'a>(app: &'a App) -> Result<(), &'a StartupHook> {
+    eprintln!("{:#?}", &app.startup_hooks);
     for hook in &app.startup_hooks {
         let status = Command::new(&hook.cmd)
             .args(&hook.args)

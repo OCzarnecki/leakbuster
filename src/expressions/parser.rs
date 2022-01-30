@@ -9,6 +9,7 @@ use nom::{
     multi::many1,
     sequence::{preceded, terminated, delimited, tuple},
 };
+use serde::{Deserialize, Deserializer};
 use std::str::FromStr;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -19,6 +20,17 @@ pub enum Condition {
     Weekday(ConditionWeekday),
     AtMostInSliding(ConditionAtMostInSliding),
     AtMostInThis(ConditionAtMostInThis)
+}
+
+impl<'de> Deserialize<'de> for Condition {
+    fn deserialize<D>(d: D) -> Result<Condition, D::Error>
+    where
+        D: Deserializer<'de>
+    {
+        use serde::de::Error;
+        let expr = String::deserialize(d)?;
+        parse_condition(&expr).map_err(D::Error::custom)
+    }
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -66,6 +78,17 @@ pub struct Duration {
     pub seconds: u64
 }
 
+impl<'de> Deserialize<'de> for Duration {
+    fn deserialize<D>(d: D) -> Result<Duration, D::Error>
+    where
+        D: Deserializer<'de>
+    {
+        use serde::de::Error;
+        let expr = String::deserialize(d)?;
+        parse_duration(&expr).map_err(D::Error::custom)
+    }
+}
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum TimeUnit {
     Second,
@@ -88,7 +111,22 @@ pub fn parse_condition(expr: &str) -> Result<Condition, String> {
     match result.finish() {
         Ok((_, cond)) => Ok(cond),
         Err(e) => Err(format!(
-            "Couldn't parse condition: {}",
+            "Couldn't parse condition: {:#?}",
+            convert_error(expr, e)
+        ))
+    }
+}
+
+pub fn parse_duration(expr: &str) -> Result<Duration, String> {
+    let result: IResult<&str, Duration, VerboseError<&str>> = delimited(
+        multispace0,
+        duration,
+        multispace0
+    )(expr);
+    match result.finish() {
+        Ok((_, dur)) => Ok(dur),
+        Err(e) => Err(format!(
+            "Couldn't parse condition: {:#?}",
             convert_error(expr, e)
         ))
     }

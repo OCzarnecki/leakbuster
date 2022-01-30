@@ -1,5 +1,5 @@
 pub mod parser;
-pub use crate::expressions::parser::parse_condition;
+pub use crate::expressions::parser::{parse_duration, parse_condition, Duration};
 
 use crate::db;
 use crate::db::Db;
