@@ -32,10 +32,21 @@ pub struct App {
     pub startup_hooks: Vec<StartupHook>,
     #[serde(default)]
     pub time_hooks: Vec<TimeHook>,
+    #[serde(default)]
+    pub shutdown_hooks: Vec<ShutdownHook>,
 }
 
 #[derive(Deserialize, PartialEq, Debug)]
 pub struct StartupHook {
+    pub cmd: String,
+    #[serde(default)]
+    pub args: Vec<String>,
+    #[serde(default)]
+    pub condition: Option<Condition>
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ShutdownHook {
     pub cmd: String,
     #[serde(default)]
     pub args: Vec<String>,

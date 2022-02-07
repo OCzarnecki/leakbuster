@@ -12,19 +12,28 @@ The configuration file is in YAML, and expects a root object at the top.
 
 # App
 
-| Field name    | Type            | Optional | Description |
-| --------------|-----------------|----------|------------ |
-| id            | text            | no       | Id by which the app is known to leakbuster. Alphanumerical IDs without spaces are recommended. |
-| cmd           | text            | no       | Command that leakbuster will run to start the app. |
-| args          | \[text\]        | yes      | Arguments to pass when starting the app. |
-| startup_hooks | \[StartupHook\] | yes      | List of StartupHook, to be run before the app. The StartupHooks are run in order. If one of them returns a non-zero exit code, leakbuster will terminate instead of running the next one or the app. |
-| time_hooks    | \[TimeHook\]    | yes      | List of TimeHooks, to be run after the app is started. See TimeHook configuration for details. |
+| Field name     | Type             | Optional | Description |
+| ---------------|------------------|----------|------------ |
+| id             | text             | no       | Id by which the app is known to leakbuster. Alphanumerical IDs without spaces are recommended. |
+| cmd            | text             |  no      | Command that leakbuster will run to start the app. |
+| args           | \[text\]         | yes      | Arguments to pass when starting the app. |
+| startup_hoo ks | \[StartupHook\]  | yes      | List of StartupHook, to be run before the app. The StartupHooks are run in order. If one of them returns a non-zero exit code, leakbuster will terminate instead of running the next one or the app. |
+| time_hooks     | \[TimeHook\]     | yes      | List of TimeHooks, to be run after the app is started. See TimeHook configuration for details. |
+| shutdown_hooks | \[ShutdownHook\] | yes      | List of ShutdownHooks, to be run after the application terminates (including SIGINT). ShutdownHooks will not run, if the regular startup of the application was prevented by a StartupHook. |
 
 # StartupHook
 
 | Field name    | Type            | Optional | Description |
 | --------------|-----------------|----------|------------ |
 | condition     | text            | yes      | Expression in the condition language, of type Condition. This startup hook will only be run if the expression evaluates to true. |
+| cmd           | text            | no       | Command to execute in order to run this StartupHook. |
+| args          | \[text\]        | yes      | Command line arguments. |
+
+# ShutdownHook
+
+| Field name    | Type            | Optional | Description |
+| --------------|-----------------|----------|------------ |
+| condition     | text            | yes      | Expression in the condition language, of type Condition. This shutdown hook will only be run if the expression evaluates to true. |
 | cmd           | text            | no       | Command to execute in order to run this StartupHook. |
 | args          | \[text\]        | yes      | Command line arguments. |
 

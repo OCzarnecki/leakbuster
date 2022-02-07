@@ -12,12 +12,13 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 
 # Better Hooks
 - [ ] Check conditions in StartupHook and TimeHook
-- [ ] Add Shutdown hooks
+- [x] Add Shutdown hooks
 
 # Refactorings
 - [ ] After condition language stabilized a bit
   - [ ] Test expression parsing
   - [ ] Test expression evaluation
+- [ ] bring config test up to spec
 
 # Condition language
 - [ ] needs a snappier name

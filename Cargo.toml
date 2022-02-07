@@ -13,6 +13,7 @@ edition = "2018"
 [dependencies]
 by_address = "1.0.4"
 chrono = "0.4.19"
+ctrlc = "3.2.1"
 druid = "0.7.0"
 home = "0.5.3"
 nom = "7.1.0"
