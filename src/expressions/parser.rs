@@ -89,9 +89,9 @@ impl<'de> Deserialize<'de> for Duration {
     }
 }
 
-impl Into<std::time::Duration> for Duration {
-    fn into(self) -> std::time::Duration {
-        std::time::Duration::from_secs(self.seconds)
+impl From<Duration> for std::time::Duration {
+    fn from(val: Duration) -> Self {
+        std::time::Duration::from_secs(val.seconds)
     }
 }
 
@@ -139,7 +139,7 @@ pub fn parse_duration(expr: &str) -> Result<Duration, String> {
 }
 
 
-fn condition_expr<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_expr(s: &str) -> IResult<&str, Condition, Error<&str>> {
     context(
         "condition_expr",
         alt((
@@ -150,7 +150,7 @@ fn condition_expr<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>>
     )))(s)
 }
 
-fn condition_term<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_term(s: &str) -> IResult<&str, Condition, Error<&str>> {
     context(
         "condition_term",
         alt((
@@ -165,7 +165,7 @@ fn condition_term<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>>
     )))(s)
 }
 
-fn condition_and<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_and(s: &str) -> IResult<&str, Condition, Error<&str>> {
     let (input, (c1, _, _, _, c2)) = context(
         "condition_and",
         tuple((
@@ -182,7 +182,7 @@ fn condition_and<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> 
     Ok((input, Condition::And(cnd)))
 }
 
-fn condition_or<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_or(s: &str) -> IResult<&str, Condition, Error<&str>> {
     let (input, (c1, _, _, _, c2)) = context(
         "condition_or",
         tuple((
@@ -199,7 +199,7 @@ fn condition_or<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
     Ok((input, Condition::Or(cnd)))
 }
 
-fn condition_not<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_not(s: &str) -> IResult<&str, Condition, Error<&str>> {
     let (input, (_, _, c)) = context(
         "condition_not",
         tuple((
@@ -212,7 +212,7 @@ fn condition_not<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> 
     Ok((input, Condition::Not(cnd)))
 }
 
-fn condition_weekday<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_weekday(s: &str) -> IResult<&str, Condition, Error<&str>> {
     let (input, weekday_str) = context(
         "condition_weekday",
         alt((
@@ -237,7 +237,7 @@ fn condition_weekday<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a st
     Ok((input, Condition::Weekday(wd)))
 }
 
-fn condition_at_most_in_this<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_at_most_in_this(s: &str) -> IResult<&str, Condition, Error<&str>> {
     let (input, (_, _, limit, _, _, _, _, _, time_unit)) = context(
         "condition_at_most_in_this",
         tuple((
@@ -257,7 +257,7 @@ fn condition_at_most_in_this<'a>(s: &'a str) -> IResult<&'a str, Condition, Erro
     )))
 }
 
-fn condition_at_most_in_sliding<'a>(s: &'a str) -> IResult<&'a str, Condition, Error<&'a str>> {
+fn condition_at_most_in_sliding(s: &str) -> IResult<&str, Condition, Error<&str>> {
     let (input, (_, _, limit, _, _, _, _, _, window_size)) = context(
         "condition_at_most_in_sliding",
         tuple((
@@ -277,7 +277,7 @@ fn condition_at_most_in_sliding<'a>(s: &'a str) -> IResult<&'a str, Condition, E
     )))
 }
 
-fn duration<'a>(s: &'a str) -> IResult<&'a str, Duration, Error<&'a str>> {
+fn duration(s: &str) -> IResult<&str, Duration, Error<&str>> {
     let (input, (number, _, unit)) = context(
         "duration",
         tuple((
@@ -297,7 +297,7 @@ fn duration<'a>(s: &'a str) -> IResult<&'a str, Duration, Error<&'a str>> {
     Ok((input, Duration { seconds: number * unit_seconds } ))
 }
 
-fn time_unit<'a>(s: &'a str) -> IResult<&'a str, TimeUnit, Error<&'a str>> {
+fn time_unit(s: &str) -> IResult<&str, TimeUnit, Error<&str>> {
     let (input, unit_str) = context(
         "time_unit",
         alt((
@@ -323,7 +323,7 @@ fn time_unit<'a>(s: &'a str) -> IResult<&'a str, TimeUnit, Error<&'a str>> {
     Ok((input, unit))
 }
 
-fn integer<'a>(s: &'a str) -> IResult<&'a str, u64, Error<&'a str>> {
+fn integer(s: &str) -> IResult<&str, u64, Error<&str>> {
     context(
         "integer",
         map_res(

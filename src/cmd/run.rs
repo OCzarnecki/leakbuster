@@ -21,7 +21,7 @@ pub fn run(
     let config = cmd::get_config(config_path);
     let db = cmd::get_db(db_path);
     let app = &config.get_app(app_id)
-        .expect(&format!("Unknown app: {:}", app_id));
+        .unwrap_or_else(|| panic!("Unknown app: {:}", app_id));
     check_startup_hooks(&app).expect("Startup hook prevented run");
 
     let mut time_hook_schedule = schedule_time_hooks(&app.time_hooks);
@@ -81,12 +81,12 @@ fn schedule_time_hooks<'a>(time_hooks: &'a [TimeHook]) -> PriorityQueue<ByAddres
     q
 }
 
-fn check_startup_hooks<'a>(app: &'a App) -> Result<(), &'a StartupHook> {
+fn check_startup_hooks(app: &App) -> Result<(), &StartupHook> {
     for hook in &app.startup_hooks {
         let status = Command::new(&hook.cmd)
             .args(&hook.args)
             .status()
-            .expect(&format!("Failed to run startup hook: {:?}", hook));
+            .unwrap_or_else(|_| panic!("Failed to run startup hook: {:?}", hook));
         if !status.success() {
             return Err(&hook)
         }

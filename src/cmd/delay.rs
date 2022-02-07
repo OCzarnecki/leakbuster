@@ -72,7 +72,7 @@ pub fn delay(delay_in_s: u64, message: Option<String>) {
     AppLauncher::with_window(main_window)
         .launch(AppData {
             message: message
-                .unwrap_or("Program execution delayed".to_string()),
+                .unwrap_or_else(|| "Program execution delayed".to_string()),
             countdown: delay_in_s,
             deadline: Arc::new(
                 Instant::now().add(Duration::from_secs(delay_in_s))
