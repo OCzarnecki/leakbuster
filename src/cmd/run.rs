@@ -43,7 +43,7 @@ pub fn run(
             );
 
         let now = Instant::now();
-        while let Some(hook) = time_hook_schedule .peek()
+        while let Some(hook) = time_hook_schedule.peek()
             .and_then(|(hook_by_addr, prio)| {
                 if prio.0 > now {
                     None
