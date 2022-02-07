@@ -5,7 +5,7 @@ use std::fs;
 use std::path::Path;
 use std::result;
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct Config {
     pub apps: Vec<App>
 }
@@ -22,7 +22,7 @@ impl Config {
     }
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct App {
     pub id: String,
     pub cmd: String,
@@ -42,7 +42,7 @@ pub struct StartupHook {
     pub condition: Option<Condition>
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct TimeHook {
     pub cmd: String,
     #[serde(default)]

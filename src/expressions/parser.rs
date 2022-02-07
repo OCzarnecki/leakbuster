@@ -73,7 +73,7 @@ pub struct ConditionAtMostInThis {
     pub time_unit: TimeUnit
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Duration {
     pub seconds: u64
 }
@@ -86,6 +86,12 @@ impl<'de> Deserialize<'de> for Duration {
         use serde::de::Error;
         let expr = String::deserialize(d)?;
         parse_duration(&expr).map_err(D::Error::custom)
+    }
+}
+
+impl Into<std::time::Duration> for Duration {
+    fn into(self) -> std::time::Duration {
+        std::time::Duration::from_secs(self.seconds)
     }
 }
 

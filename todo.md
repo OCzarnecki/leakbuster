@@ -14,11 +14,13 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 
 # Better Hooks
 - [ ] Check conditions in StartupHook and TimeHook
-- [ ] Implement TimeHook execution
+- [x] Implement TimeHook execution
+- [ ] Add Shutdown hooks
 
 # Refactorings
 - [x] Db should be a struct
 - [ ] Parse conditions once, when loading config
+- [ ] Make loop speed configurable
 - [ ] After condition language stabilized a bit
   - [ ] Test expression parsing
   - [ ] Test expression evaluation
@@ -26,3 +28,4 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 # Future Features
 - [ ] Track window activity for executed apps, and make it possible to distinguish between runtime and activity in condition language
 - [ ] plot / export nice metrics about app usage
+- [ ] pass arguments to command, after --
