@@ -52,10 +52,14 @@ pub fn run(
                 }
         }) {
             start_time_hook(hook);
-            time_hook_schedule.push_decrease(
-                ByAddress(hook),
-                Reverse(now + hook.interval.into())
-            );
+            if hook.interval.seconds > 0 {
+                time_hook_schedule.push_decrease(
+                    ByAddress(hook),
+                    Reverse(now + hook.interval.into())
+                );
+            } else {
+                time_hook_schedule.pop();
+            }
         }
     }
 }
