@@ -51,7 +51,7 @@ fn default_config_path() -> PathBuf {
     // ~/.config/leakbuster
     let mut path = home::home_dir().expect("Could not get home dir. Please specify config location manually");
     path.push(".config");
-    path.push("leakbuster.config");
+    path.push("leakbuster.yaml");
     path
 }
 

@@ -1,36 +1,29 @@
-# Deploying to AUR
+# Publishing
 It should be possible to install leakbuster via AUR, and use it as an outsider.
-- [x] document configuration file
-- [x] package it so I can install it locally
 - [ ] figure out how to deploy that package to AUR
-- [x] have default locations for db and config, overwritable for dev
-- [ ] Add README.md and some usage examples
+- [ ] create debian release
+- [ ] advertise on
+  - [ ] HackerNews
+  - [ ] Humane Technology Project (check name: it's where LeechBlock is from)
+  - [ ] Arch application list
 
 # Delay startup
-- [x] make delayed startup command
-- [x] implement arg parsing
-- [x] refactor to use controller, instead of custom widget
-- [x] align text to center
 - [ ] watch for screen activity
 
 # Better Hooks
 - [ ] Check conditions in StartupHook and TimeHook
-- [x] Implement TimeHook execution
 - [ ] Add Shutdown hooks
 
 # Refactorings
-- [x] Db should be a struct
-- [x] Parse conditions once, when loading config
-- [x] Make loop speed configurable
 - [ ] After condition language stabilized a bit
   - [ ] Test expression parsing
   - [ ] Test expression evaluation
 
+# Condition language
+- [ ] needs a snappier name
+- [ ] make usage duration over a time window into algebraic primitives, that can be compared with and added to durations
+
 # Random
-- [x] pass arguments to command, after --
-- [x] Make conditions in StartupHook and TimeHook optional
-- [ ] change default location of db to wherever other apps keep their data
-- [ ] change default config name to .yaml for syntax highlighting
 
 # Future Features
 - [ ] Track window activity for executed apps, and make it possible to distinguish between runtime and activity in condition language
