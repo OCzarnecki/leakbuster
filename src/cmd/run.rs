@@ -15,7 +15,8 @@ use std::path::PathBuf;
 pub fn run(
     config_path: Option<PathBuf>,
     db_path: Option<PathBuf>,
-    app_id: &str
+    app_id: &str,
+    args: &[String]
 ) {
     let config = cmd::get_config(config_path);
     let db = cmd::get_db(db_path);
@@ -26,7 +27,7 @@ pub fn run(
     let mut time_hook_schedule = schedule_time_hooks(&app.time_hooks);
 
     let mut app_cmd = Command::new(&app.cmd)
-        .args(&app.args)
+        .args(app.args.iter().chain(args.iter()))
         .spawn()
         .expect("Failed to execute command");
 

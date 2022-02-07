@@ -18,7 +18,13 @@ enum Leakbuster {
         db: Option<PathBuf>,
 
         /// Id of the app to start, as defined in config
-        app_id: String
+        app_id: String,
+
+        #[structopt(last(true))]
+        /// Arguments that will be passed to the app that is run (if it is
+        /// run). Will be appended to the argument list specified in the
+        /// configuration.
+        args: Vec<String>,
     },
     /// Evaluate a condition on the usage of a given app.
     /// Exit 0: if the condition is true.
@@ -51,8 +57,8 @@ enum Leakbuster {
 fn main() {
     let leakbuster = Leakbuster::from_args();
     match leakbuster {
-        Leakbuster::Run{ config, db, app_id } =>
-            run::run(config, db, &app_id),
+        Leakbuster::Run{ config, db, app_id, args } =>
+            run::run(config, db, &app_id, &args),
         Leakbuster::Eval{ db, app_id, condition } =>
             eval::eval(db, &app_id, &condition),
         Leakbuster::Delay{ duration, message } =>

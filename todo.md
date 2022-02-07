@@ -27,7 +27,7 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
   - [ ] Test expression evaluation
 
 # Random
-- [ ] pass arguments to command, after --
+- [x] pass arguments to command, after --
 - [ ] Make conditions in StartupHook and TimeHook optional
 
 # Future Features
