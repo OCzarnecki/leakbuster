@@ -39,6 +39,7 @@ pub struct StartupHook {
     pub cmd: String,
     #[serde(default)]
     pub args: Vec<String>,
+    #[serde(default)]
     pub condition: Option<Condition>
 }
 
@@ -51,7 +52,8 @@ pub struct TimeHook {
     pub condition_cmd: Option<String>,
     #[serde(default)]
     pub condition_args: Vec<String>,
-    pub condition: Condition,
+    #[serde(default)]
+    pub condition: Option<Condition>,
     #[serde(default="TimeHook::default_interval")]
     pub interval: Duration,
     #[serde(default="TimeHook::default_initial_delay")]

@@ -28,7 +28,9 @@ It should be possible to install leakbuster via AUR, and use it as an outsider.
 
 # Random
 - [x] pass arguments to command, after --
-- [ ] Make conditions in StartupHook and TimeHook optional
+- [x] Make conditions in StartupHook and TimeHook optional
+- [ ] change default location of db to wherever other apps keep their data
+- [ ] change default config name to .yaml for syntax highlighting
 
 # Future Features
 - [ ] Track window activity for executed apps, and make it possible to distinguish between runtime and activity in condition language
